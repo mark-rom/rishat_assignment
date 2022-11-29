@@ -6,24 +6,17 @@ import stripe
 stripe.api_key = settings.STRIPE_API_KEY
 
 
-def get_stripe_payment_intent(item):
-    return stripe.PaymentIntent.create(
-        amount=item.price,
-        currency=item.currency
-    )
-
-
 def get_stripe_payment_session(request, items):
 
     return stripe.checkout.Session.create(
         mode='payment',
         success_url=_get_full_uri(request, 'items', 'payment-success'),
         cancel_url=_get_full_uri(request, 'items', 'payment-cancel'),
-        line_items=get_all_items(items)
+        line_items=_get_all_items_for_payment(items)
     )
 
 
-def get_all_items(items):
+def _get_all_items_for_payment(items):
     list_items = []
     for item in items:
         list_items.append({
